@@ -137,9 +137,11 @@ if ifc_file is not None:
     output = BytesIO()
 
     # Convert DataFrame to Excel and use streamlit to download
-    excel_writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(excel_writer, index=False)
-    excel_writer.save()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+
+    # Move the cursor to the beginning of the BytesIO object
+    output.seek(0)
 
     # Convert BytesIO to a streamlit download button
     st.download_button(
