@@ -145,11 +145,12 @@ if ifc_file is not None:
 
     # Convert BytesIO to a streamlit download button
     st.download_button(
-        label="Download output XLS file",
+        label="Download output XLSX file",
         data=output.getvalue(),
-        file_name="output.xls",
-        mime="application/vnd.ms-excel"
+        file_name="output.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
     # Display success message
     st.success(f'Dein Raumbuch aus dem IFC Modell ({uploaded_file_name}) wurde erfolgreich exportiert!')
