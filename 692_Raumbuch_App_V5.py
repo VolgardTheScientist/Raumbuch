@@ -5,10 +5,26 @@ import ifcopenshell.util.element
 import os
 import tempfile
 from io import BytesIO
+import requests
+
+# URL to the raw content of the file on GitHub
+url = "https://raw.githubusercontent.com/VolgardTheScientist/Raumbuch/main/Raumbuch_Attributenliste_IFC.xlsx"
+
+# Use requests to download the file and pandas to read the Excel data
+try:
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an exception if the request was unsuccessful
+except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as err:
+    st.error(f"Error occurred while downloading the file: {err}")
+else:
+    # Read the Excel file from the response content
+    data = pd.read_excel(BytesIO(response.content), engine='openpyxl', usecols=[0, 1])
+    property_pset_pairs = data.astype(str).applymap(str.strip)
+
 
 # Load the data from the excel file
-excel_file_path = r'O:\01 Laufende Projekte\692 WB Erweiterung Klinik Hirslanden Aarau\02 Planunterlagen\02 BIM AKTUELL\020 Raumbuch\Python\Raumbuch_Attributenliste_IFC.xlsx'
-property_pset_pairs = pd.read_excel(excel_file_path, engine='openpyxl', usecols=[0, 1]).astype(str).applymap(str.strip)
+# excel_file_path = r'O:\01 Laufende Projekte\692 WB Erweiterung Klinik Hirslanden Aarau\02 Planunterlagen\02 BIM AKTUELL\020 Raumbuch\Python\Raumbuch_Attributenliste_IFC.xlsx'
+# property_pset_pairs = pd.read_excel(excel_file_path, engine='openpyxl', usecols=[0, 1]).astype(str).applymap(str.strip)
 
 st.title("692 Raumbuch IFC to XLS")
 
