@@ -85,13 +85,19 @@ if ifc_file is not None:
     for room in rooms:
         room_data = {"global_id": room.GlobalId, "name": room.Name}
 
-        # Get the BaseQuantities
-        psets = ifcopenshell.util.element.get_psets(room, qtos_only=True)
-        if 'BaseQuantities' in psets and 'NetFloorArea' in psets['BaseQuantities']:
-            room_data['BaseQuantities__NetFloorArea'] = psets['BaseQuantities']['NetFloorArea']
+        # Try to get the BaseQuantities
+        try:
+            psets = ifcopenshell.util.element.get_psets(room, qtos_only=True)
+            if 'BaseQuantities' in psets and 'NetFloorArea' in psets['BaseQuantities']:
+                room_data['BaseQuantities__NetFloorArea'] = psets['BaseQuantities']['NetFloorArea']
+            else:
+                room_data['BaseQuantities__NetFloorArea'] = None
+        except:
+            room_data['BaseQuantities__NetFloorArea'] = None
 
         # Append room quantity data to the list
         quantity_data.append(room_data)
+
 
     # Convert list of dictionaries to pandas DataFrame
     df = pd.DataFrame(data)
@@ -108,8 +114,17 @@ if ifc_file is not None:
     # Arrange DataFrame columns according to property-PSet combined keys order and then rename columns
     df = df.reindex(columns=['global_id', 'name'] + (property_pset_pairs['PSet'] + '__' + property_pset_pairs['Property']).tolist()).rename(columns=column_rename_dict)
 
-    # Add Qtos to DataFrame with PSets
-    df['Fläche Ist [m²]'] = dfQto['BaseQuantities__NetFloorArea']
+    # Only add 'BaseQuantities__NetFloorArea' to df if it exists in dfQto
+    if 'BaseQuantities__NetFloorArea' in dfQto.columns:
+        # Add Qtos to DataFrame with PSets
+        df['Fläche Ist [m²]'] = dfQto['BaseQuantities__NetFloorArea']
+    
+        if df['Fläche Ist [m²]'].notna().any():
+            df['Fläche Ist [m²]'] = df['Fläche Ist [m²]'].round(2)
+        else:
+            df['Fläche Ist [m²]'] = None
+    else:
+        df['Fläche Ist [m²]'] = None
 
     # Round the 'Fläche Ist [m²]' column to two decimal places
     df['Fläche Ist [m²]'] = df['Fläche Ist [m²]'].round(2)
