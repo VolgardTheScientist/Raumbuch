@@ -120,16 +120,12 @@ if ifc_file is not None:
         df['Fläche Ist [m²]'] = dfQto['BaseQuantities__NetFloorArea']
     
         if df['Fläche Ist [m²]'].notna().any():
+            # Round the 'Fläche Ist [m²]' column to two decimal places
             df['Fläche Ist [m²]'] = df['Fläche Ist [m²]'].round(2)
         else:
             df['Fläche Ist [m²]'] = None
     else:
         df['Fläche Ist [m²]'] = None
-
-    # Round the 'Fläche Ist [m²]' column to two decimal places
-    df['Fläche Ist [m²]'] = df['Fläche Ist [m²]'].round(2)
-    print('Laufnummer und Fläche IST:')
-    print(df['Fläche Ist [m²]'])
 
     # Remove rows where 'name' equals '*'
     df = df.loc[df['name'] != '*']
